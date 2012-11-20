@@ -41,6 +41,7 @@ Random selection of options
 each option random hours / $ / award / %age
 
 player:
+
     var player = {
         "timeRemaining": 12345, // hours
         "money": 1234, // dollars
@@ -69,7 +70,8 @@ chance -item awarded, time, money, skills, risk range
 pawn shop / stores - items and price range
 
 
-  action data:
+action data:
+
     var actionData = {
         "Work": workData,
         "Train": trainData,
