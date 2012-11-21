@@ -94,7 +94,7 @@ https://github.com/mcmarkb/gamejam-bimbo
 Tasks:
 - UI - renders data, renders choices, allows them to be chosen -- MarkB
 - Action Engine -- Ivar
-- Aciton Data  -- Al
+- Action Data  -- Al
 - Trading Logic
 - Skills Engine
 
