@@ -12,7 +12,8 @@ var outputer = function(textToDemp){
 var Bimbo = function(){
 	this.money = 50;
 	this.timeRemaining = 24*7;
-	this.skills = {"Bartender":1,"Secretarial":1,"Persuasion":1} 
+	this.skills = {"Bartender":1,"Secretarial":1,"Persuasion":1};
+	this.items = {"Gossip magazine":1,"Designer shoes":20,"Hairbrush":1,"Make up":1,"Phone":1};
 	this.increaseSkill = function(skillName){
 		if(this.skills[skillName]){
 			if(this.skills[skillName] < 4 ){
@@ -21,12 +22,27 @@ var Bimbo = function(){
 		} else {
 			this.skills[skillName] = 1;
 		};
-	}
+	};
 	this.timeLapse = function(timeSpent){
 		this.timeRemaining-=timeSpent;
-	}
+	};
 	this.saveMoney = function(newMoney){
 		this.money+=newMoney;
+	};
+	this.addItem = function(item){
+		if(this.items[item]){
+			this.items[item] += 1;
+		} else {
+			this.items[item] = 1;
+		}
+	}
+	this.takeChance = function(chance){
+		if(chance.item){
+			this.addItem(chance.item);
+		} else {
+			this.saveMoney(chance.money);
+		}
+		this.timeLapse(chance.time);
 	}
 }
 
@@ -45,6 +61,17 @@ var jobs = [
  	{"name": "TV Host", "time": [3,5], "money": [50,1000], 
  		"skills":{ 	"Presentation": {"requiredLevel":1,"multiplier":3}, "Persuasion": {"multiplier":1} } }
 ];
+
+var chances = {
+	"Dumpster diving": { "items": [ "Designer shoes", "Hairbrush", "Clothes", "Make up" ],
+		 	"money": [5,100], "time": 1 },
+	"Tidy up apartment": { "items": [ "Clothes", "Designer shoes", "Gossip magazine", "Make up", "Jewelery" ], 
+			"money": [5,100], "time": 1 },
+	"Cultivate a sugar daddy": { "items": [ "Plastic surgery voucher", "Designer dress", "Jewelery" ], 
+			"money": [100,1000], "time": 5},
+	"Visit parents": { "items": [ "Clothes", "Gossip magazine", "Make up"], 
+			"money": [5,100], "time": 2 }
+};
 
 var JobActionEngine = function(){
 	this.findAvailableJobs = function(bimbo){
@@ -135,7 +162,27 @@ function isJobAlreadyOffered(availableJobs,jobAvailable){
 }
 
 var ChanceActionEngine = function(){
-	this.findChance = function(){}
+	this.chooseChance = function(){
+		var chanceName = findRandomChance();
+		var chance = chances[chanceName];
+		if(Math.random()>0.2){
+			var item = pickRandomFromArray(chance.items);
+			return {"name": chanceName, "time": chance.time, "item": item};
+		} else {
+			var money = randomRange(chance.money);	
+			return {"name": chanceName, "time": chance.time, "money": money};
+		}
+	}
+}
+
+function pickRandomFromObject(associatedArray){
+	var index = Math.floor(Math.random()*Object.keys(associatedArray).length);
+	return Object.keys(associatedArray)[index];
+}
+
+function pickRandomFromArray(associatedArray){
+	var index = Math.floor(Math.random()*associatedArray.length);
+	return associatedArray[index];
 }
 
 
@@ -149,8 +196,11 @@ var bimboGame = new BimboGame();
 var bimbo = new Bimbo();
 
 function chooseRandomJob(){
-	var jobNumber = Math.floor(Math.random()*jobs.length);
-	return jobs[jobNumber];
+	return pickRandomFromArray(jobs);
+}
+
+function findRandomChance(){
+	return pickRandomFromObject(chances);
 }
 
 $(document).ready(function(){
@@ -185,9 +235,36 @@ $(document).ready(function(){
 		bimbo.saveMoney(cost.money);
 		outputer("Bimbo has " + bimbo.money + " in cash but only " + bimbo.timeRemaining + " time left");
 	}).text("acrue money and spend time");
-
 	$("#button4").click(function(){
+		outputer("-----");
+		var chance = bimboGame.chanceEngine.chooseChance();
+		if(chance.item){
+			outputer("Chance " + chance.name + " found/received "+ chance.item + " for " + chance.time + " hours");
+		} else {
+			outputer("Chance " + chance.name + " earned $"+ chance.money + " for " + chance.time + " hours" );
+		}
 	}).text("Pick random chance event");
+	$("#button5").click(function(){
+		outputer("-----");
+		var chance = bimboGame.chanceEngine.chooseChance();
+		bimbo.takeChance(chance);
+		outputer("Chance " + chance.name );
+		if(chance.item){
+			if(bimbo.items[chance.item]){
+				bimbo.items[chance.item] += 1;
+			} else {
+				bimbo.items[chance.item] = 1;
+			}
+		} else {
+			bimbo.money+=chance.money;
+		}
+		outputer("Bimbo has " + bimbo.money + " in cash but only " + bimbo.timeRemaining + " time left");
+		var inventory = "";
+		for(var key in Object.keys(bimbo.items)){
+			inventory += Object.keys(bimbo.items)[key] + " x " + bimbo.items[Object.keys(bimbo.items)[key]] + ",";
+		}
+		outputer("Inventory: "+inventory);
+	}).text("Receive random chance event");
 
 });
 
