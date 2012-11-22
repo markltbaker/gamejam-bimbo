@@ -186,6 +186,8 @@ $(document).ready(function(){
 		outputer("Bimbo has " + bimbo.money + " in cash but only " + bimbo.timeRemaining + " time left");
 	}).text("acrue money and spend time");
 
+	$("#button4").click(function(){
+	}).text("Pick random chance event");
 
 });
 
